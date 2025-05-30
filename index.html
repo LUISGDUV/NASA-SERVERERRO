@@ -5,6 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Controle de Antenas NASA</title>
     <link rel="stylesheet" href="style.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let auth;
+        let db;
+        let userId = 'anonymous'; // Default userId
+
+        // Initialize Firebase and authenticate
+        if (firebaseConfig) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('userIdDisplay').textContent = `ID do Usuário: ${userId}`;
+                    console.log("Firebase Authenticated. User ID:", userId);
+                    // Start listening to global alarm state after authentication
+                    setupGlobalAlarmListener();
+                } else {
+                    // Try to sign in anonymously if no user is logged in
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Firebase Auth Error:", error);
+                        // Fallback to anonymous if custom token fails
+                        userId = crypto.randomUUID(); // Generate a random ID for unauthenticated users
+                        document.getElementById('userIdDisplay').textContent = `ID do Usuário (offline): ${userId}`;
+                        console.log("Using generated anonymous ID:", userId);
+                    }
+                }
+            });
+        } else {
+            console.warn("Firebase config not found. Running in offline mode.");
+            userId = crypto.randomUUID(); // Generate a random ID for offline mode
+            document.getElementById('userIdDisplay').textContent = `ID do Usuário (offline): ${userId}`;
+        }
+
+        // Expose Firebase instances to the global scope for other scripts to use
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firestoreDb = db;
+        window.currentUserId = userId; // Make userId globally accessible
+
+        // Function to set up the real-time listener for the global alarm state
+        function setupGlobalAlarmListener() {
+            if (!db) {
+                console.error("Firestore not initialized. Cannot set up alarm listener.");
+                return;
+            }
+
+            const alarmDocRef = doc(db, `artifacts/${appId}/public/data/alarm_status/global_alarm`);
+
+            onSnapshot(alarmDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && typeof data.isActive === 'boolean') {
+                        if (data.isActive && !window.isAlarmActive) {
+                            window.startAlarmSound();
+                        } else if (!data.isActive && window.isAlarmActive) {
+                            window.stopAlarmSound();
+                        }
+                    }
+                } else {
+                    // Document doesn't exist, create it with default state if needed
+                    setDoc(alarmDocRef, { isActive: false, triggeredBy: null, timestamp: new Date() });
+                }
+            }, (error) => {
+                console.error("Error listening to global alarm:", error);
+            });
+        }
+
+        // Function to update the global alarm state in Firestore
+        window.updateGlobalAlarmState = async (isActive, triggeredByAntennaId = null) => {
+            if (!db) {
+                console.error("Firestore not initialized. Cannot update alarm state.");
+                return;
+            }
+            const alarmDocRef = doc(db, `artifacts/${appId}/public/data/alarm_status/global_alarm`);
+            try {
+                await setDoc(alarmDocRef, {
+                    isActive: isActive,
+                    triggeredBy: isActive ? triggeredByAntennaId : null,
+                    timestamp: new Date(),
+                    userId: window.currentUserId
+                });
+                console.log(`Global alarm state updated to: ${isActive}`);
+            } catch (error) {
+                console.error("Failed to update global alarm state:", error);
+            }
+        };
+    </script>
 </head>
 <body>
     <div class="main-container">
@@ -121,3 +227,4 @@
 </body>
 </html>
 
+    
