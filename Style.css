@@ -1,0 +1,446 @@
+/* Reset básico e box-sizing para consistência */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif; /* Fonte Inter, fallback para sans-serif */
+    background-color: #0f172a; /* Cor de fundo escura */
+    color: #e2e8f0; /* Cor do texto claro */
+    padding: 1rem; /* Espaçamento interno */
+    overflow-x: hidden; /* Evita rolagem horizontal */
+    min-height: 100vh; /* Garante que o corpo ocupe a altura total da viewport */
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.5s ease; /* Transição suave para o fundo */
+}
+
+/* Animação de piscar para o alarme */
+@keyframes alarm-flash {
+    from { background-color: #0f172a; } /* Original dark blue */
+    to { background-color: #4a0000; } /* Dark red for alarm */
+}
+
+body.alarm-active {
+    animation: alarm-flash 1s infinite alternate; /* Flashing effect */
+}
+
+@media (min-width: 768px) { /* Estilos para telas maiores (md:) */
+    body {
+        padding: 2rem; /* Mais espaçamento em telas maiores */
+    }
+}
+
+.main-container {
+    max-width: 80rem; /* Largura máxima (max-w-7xl) */
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    flex-grow: 1; /* Permite que o container principal cresça */
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 800; /* font-extrabold */
+    text-align: center;
+    color: #60a5fa; /* text-blue-400 */
+    margin-bottom: 2rem; /* mb-8 */
+}
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.25rem; /* md:text-4xl */
+    }
+}
+
+.user-id-display {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column; /* flex-col */
+    gap: 2rem; /* gap-8 */
+    flex-grow: 1;
+}
+@media (min-width: 768px) {
+    .content-wrapper {
+        flex-direction: row; /* md:flex-row */
+    }
+}
+
+.canvas-container {
+    flex: 1; /* flex-1 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0f172a; /* bg-slate-900 */
+    border-radius: 1rem; /* rounded-2xl */
+    padding: 1rem; /* p-4 */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+}
+
+canvas {
+    background-color: #000000; /* Fundo escuro para o espaço */
+    border-radius: 1rem; /* rounded-2xl */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+    touch-action: none; /* Previne o comportamento padrão do navegador em eventos de toque */
+    width: 100%; /* w-full */
+    height: auto; /* h-auto */
+    max-width: 100%; /* max-w-full */
+    aspect-ratio: 1 / 1; /* aspect-square */
+}
+
+.controls-info-container {
+    flex: 1; /* flex-1 */
+    display: flex;
+    flex-direction: column; /* flex-col */
+    gap: 1.5rem; /* gap-6 */
+}
+
+.section-card {
+    background-color: #0f172a; /* bg-slate-900 */
+    padding: 1.5rem; /* p-6 */
+    border-radius: 1rem; /* rounded-2xl */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+    border: 1px solid #1e293b; /* border border-slate-800 */
+}
+
+.section-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 700; /* font-bold */
+    color: #93c5fd; /* text-blue-300 */
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.antenna-controls-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* grid-cols-1 */
+    gap: 1rem; /* gap-4 */
+}
+@media (min-width: 768px) {
+    .antenna-controls-grid {
+        grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+    }
+}
+
+.antenna-card {
+    background-color: #1e293b; /* bg-slate-800 */
+    padding: 1rem; /* p-4 */
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    border: 1px solid #334155; /* border border-slate-700 */
+}
+
+.antenna-name {
+    font-weight: 700; /* font-bold */
+    font-size: 1.125rem; /* text-lg */
+    color: #bfdbfe; /* text-blue-200 */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.antenna-location {
+    font-size: 0.875rem; /* text-sm */
+    color: #94a3b8; /* text-slate-400 */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column; /* flex-col */
+    gap: 0.5rem; /* gap-2 */
+    margin-bottom: 0.75rem; /* mb-3 */
+}
+
+.control-label {
+    color: #cbd5e1; /* text-slate-300 */
+    font-size: 0.875rem; /* text-sm */
+    margin-bottom: 0.25rem; /* mb-1 */
+}
+
+.range-input {
+    width: 100%; /* w-full */
+    height: 0.5rem; /* h-2 */
+    background-color: #475569; /* bg-slate-600 */
+    border-radius: 0.5rem; /* rounded-lg */
+    -webkit-appearance: none; /* appearance-none */
+    appearance: none;
+    cursor: pointer;
+}
+/* Estilos para o "thumb" (o círculo que você arrasta) do input range */
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #60a5fa; /* blue-400 */
+    cursor: pointer;
+    margin-top: -0.25rem; /* Centraliza o thumb verticalmente */
+    box-shadow: 0 0 0 2px #3b82f6; /* blue-500 ring */
+}
+.range-input::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #60a5fa;
+    cursor: pointer;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+/* Estilos para a "track" (a barra por onde o thumb se move) do input range */
+.range-input::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 0.5rem;
+    background: #475569;
+    border-radius: 0.5rem;
+}
+.range-input::-moz-range-track {
+    width: 100%;
+    height: 0.5rem;
+    background: #475569;
+    border-radius: 0.5rem;
+}
+
+.value-display {
+    font-size: 0.875rem; /* text-sm */
+    color: #cbd5e1; /* text-slate-300 */
+    text-align: right;
+}
+
+.button-group {
+    display: flex;
+    gap: 0.5rem; /* gap-2 */
+}
+
+.control-button {
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border-radius: 0.5rem; /* rounded-lg */
+    font-weight: 600; /* font-semibold */
+    transition: all 200ms ease-in-out; /* transition-all duration-200 ease-in-out */
+    color: #ffffff; /* text-white */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    flex: 1; /* flex-1 */
+    border: none; /* Remove a borda padrão do botão */
+    cursor: pointer;
+}
+.control-button.off {
+    background-color: #dc2626; /* bg-red-600 */
+}
+.control-button.off:hover {
+    background-color: #b91c1c; /* hover:bg-red-700 */
+}
+.control-button.on {
+    background-color: #16a34a; /* bg-green-600 */
+}
+.control-button.on:hover {
+    background-color: #15803d; /* hover:bg-green-700 */
+}
+.control-button.auto-mode-off { /* Cor para o botão Automático quando desligado */
+    background-color: #9333ea; /* bg-purple-600 */
+}
+.control-button.auto-mode-off:hover {
+    background-color: #7e22ce; /* hover:bg-purple-700 */
+}
+.control-button.auto-mode-on { /* Cor para o botão Automático quando ligado */
+    background-color: #eab308; /* bg-yellow-600 */
+}
+.control-button.auto-mode-on:hover {
+    background-color: #ca8a04; /* hover:bg-yellow-700 */
+}
+.control-button.track-satellite {
+    background-color: #0ea5e9; /* bg-sky-500 */
+}
+.control-button.track-satellite:hover {
+    background-color: #0284c7; /* hover:bg-sky-600 */
+}
+.control-button.alarm-button {
+    background-color: #dc2626; /* Red for alarm button */
+}
+.control-button.alarm-button:hover {
+    background-color: #b91c1c;
+}
+.control-button.alarm-button.active-alarm-stop { /* Style for stop alarm button */
+    background-color: #475569; /* Grayish for stop */
+}
+.control-button.alarm-button.active-alarm-stop:hover {
+    background-color: #334155;
+}
+.control-button.comm-button {
+    background-color: #8b5cf6; /* Indigo-like color for communication */
+}
+.control-button.comm-button:hover {
+    background-color: #7c3aed;
+}
+.control-button.comm-button.active-comm {
+    background-color: #f43f5e; /* Rose red when active */
+}
+.control-button.comm-button.active-comm:hover {
+    background-color: #e11d48;
+}
+.control-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.satellite-list-container {
+    background-color: #1e293b; /* bg-slate-800 */
+    padding: 0.75rem; /* p-3 */
+    border-radius: 0.5rem; /* rounded-lg */
+    max-height: 12rem; /* h-48 */
+    overflow-y: auto;
+    font-size: 0.875rem; /* text-sm */
+}
+
+.satellite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #334155; /* border-slate-700 */
+}
+.satellite-item:last-child {
+    border-bottom: none;
+}
+.satellite-name-display {
+    font-weight: 600;
+    color: #cbd5e1;
+}
+.satellite-status-display {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+.satellite-status-display.tracking {
+    color: #4ade80; /* green-400 */
+}
+.satellite-status-display.communicating {
+    color: #f43f5e; /* rose-500 */
+}
+
+.telemetry-display {
+    background-color: #1e293b; /* bg-slate-800 */
+    padding: 0.75rem; /* p-3 */
+    border-radius: 0.5rem; /* rounded-lg */
+    height: auto;
+    min-height: 8rem;
+    overflow-y: auto;
+    font-size: 0.875rem; /* text-sm */
+    flex: 1;
+}
+.telemetry-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #334155;
+}
+.telemetry-item:last-child {
+    border-bottom: none;
+}
+.telemetry-label {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+.telemetry-value {
+    color: #94a3b8;
+}
+
+/* Signal display container */
+.signal-display-container {
+    background-color: #1e293b;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    max-height: 20rem; /* Adjust height as needed */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.signal-display-item {
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    background-color: #2d3a4b;
+}
+.signal-display-item p {
+    font-size: 0.875rem;
+    color: #cbd5e1;
+    margin-bottom: 0.25rem;
+}
+.signal-canvas {
+    width: 100%;
+    height: 50px; /* Fixed height for the wave display */
+    background-color: #000;
+    border-radius: 0.25rem;
+}
+
+/* Modal para seleção de satélite */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    background: #1e293b;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    color: #e2e8f0;
+}
+.modal-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #93c5fd;
+}
+.modal-content ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+.modal-content ul li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #334155;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.modal-content ul li:last-child {
+    border-bottom: none;
+}
+.modal-content ul li:hover {
+    background-color: #2d3a4b;
+}
+.modal-content button {
+    background-color: #dc2626;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    float: right;
+}
+.modal-content button:hover {
+    background-color: #b91c1c;
+}
+
+  
