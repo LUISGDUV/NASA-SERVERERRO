@@ -1,6 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// Não há mais imports do Firebase aqui, eles são carregados no index.html
 
 const canvas = document.getElementById('antennaCanvas');
 const ctx = canvas.getContext('2d');
@@ -11,15 +9,8 @@ const satelliteSelectModal = document.getElementById('satelliteSelectModal');
 const satelliteListForSelection = document.getElementById('satelliteListForSelection');
 const closeModalBtn = document.getElementById('closeModalBtn');
 
-// Global variables provided by the environment
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-let app;
-let auth;
-let db;
-let userId = 'anonymous'; // Default userId
+// As variáveis globais do Firebase (appId, firebaseConfig, initialAuthToken, firebaseApp, firestoreDb, firebaseAuth, currentUserId)
+// são agora definidas no script do index.html e acessíveis globalmente.
 
 // Canvas Settings
 let earthRadius;
@@ -155,96 +146,6 @@ const satellites = [
 ];
 
 let currentAntennaForModal = null; // To store which antenna triggered the modal
-
-// Initialize Firebase and authenticate
-if (firebaseConfig) {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            userId = user.uid;
-            document.getElementById('userIdDisplay').textContent = `ID do Usuário: ${userId}`;
-            console.log("Firebase Authenticated. User ID:", userId);
-            // Start listening to global alarm state after authentication
-            setupGlobalAlarmListener();
-        } else {
-            // Try to sign in anonymously if no user is logged in
-            try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Firebase Auth Error:", error);
-                // Fallback to anonymous if custom token fails
-                userId = crypto.randomUUID(); // Generate a random ID for unauthenticated users
-                document.getElementById('userIdDisplay').textContent = `ID do Usuário (offline): ${userId}`;
-                console.log("Using generated anonymous ID:", userId);
-            }
-        }
-    });
-} else {
-    console.warn("Firebase config not found. Running in offline mode.");
-    userId = crypto.randomUUID(); // Generate a random ID for offline mode
-    document.getElementById('userIdDisplay').textContent = `ID do Usuário (offline): ${userId}`;
-}
-
-// Expose Firebase instances to the global scope for other scripts to use
-window.firebaseApp = app;
-window.firebaseAuth = auth;
-window.firestoreDb = db;
-window.currentUserId = userId; // Make userId globally accessible
-
-// Function to set up the real-time listener for the global alarm state
-function setupGlobalAlarmListener() {
-    if (!db) {
-        console.error("Firestore not initialized. Cannot set up alarm listener.");
-        return;
-    }
-
-    const alarmDocRef = doc(db, `artifacts/${appId}/public/data/alarm_status/global_alarm`);
-
-    onSnapshot(alarmDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data && typeof data.isActive === 'boolean') {
-                if (data.isActive && !window.isAlarmActive) {
-                    window.startAlarmSound();
-                } else if (!data.isActive && window.isAlarmActive) {
-                    window.stopAlarmSound();
-                }
-            }
-        } else {
-            // Document doesn't exist, create it with default state if needed
-            setDoc(alarmDocRef, { isActive: false, triggeredBy: null, timestamp: new Date() });
-        }
-    }, (error) => {
-        console.error("Error listening to global alarm:", error);
-    });
-}
-
-// Function to update the global alarm state in Firestore
-window.updateGlobalAlarmState = async (isActive, triggeredByAntennaId = null) => {
-    if (!db) {
-        console.error("Firestore not initialized. Cannot update alarm state.");
-        return;
-    }
-    const alarmDocRef = doc(db, `artifacts/${appId}/public/data/alarm_status/global_alarm`);
-    try {
-        await setDoc(alarmDocRef, {
-            isActive: isActive,
-            triggeredBy: isActive ? triggeredByAntennaId : null,
-            timestamp: new Date(),
-            userId: window.currentUserId
-        });
-        console.log(`Global alarm state updated to: ${isActive}`);
-    } catch (error) {
-        console.error("Failed to update global alarm state:", error);
-    }
-};
 
 // --- Utility Functions ---
 
@@ -504,4 +405,93 @@ function toggleAntenna(antennaId) {
             antenna.manualAzimuthInput.disabled = true;
             antenna.manualElevationInput.disabled = true;
             antenna.autoButton.disabled = true;
-            ante
+            antenna.trackSatButton.disabled = true;
+            antenna.commButton.disabled = true; // Disable communication button
+            antenna.commButton.textContent = 'Comunicação';
+            antenna.commButton.classList.remove('active-comm');
+        }
+        draw();
+        updateSatelliteTrackingStatus();
+        updateTelemetryDisplay();
+        updateSatelliteSignalDisplays();
+        updateAlarmButtons();
+        updateCommButtons(); // Update communication buttons
+    }
+}
+
+// Updates antenna azimuth (manual)
+function updateAzimuth(antennaId, value) {
+    const antenna = antennas.find(a => a.id === antennaId);
+    if (antenna && antenna.isOn && !antenna.isAuto && !antenna.isTrackingSatellite && !antenna.isCommunicating) {
+        antenna.azimuth = parseInt(value);
+        antenna.azimuthValueSpan.textContent = `${antenna.azimuth}°`;
+        draw();
+    } else if (antenna.isAuto || antenna.isTrackingSatellite || antenna.isCommunicating) {
+        antenna.manualAzimuthInput.value = antenna.azimuth;
+    }
+}
+
+// Updates antenna elevation (manual)
+function updateElevation(antennaId, value) {
+    const antenna = antennas.find(a => a.id === antennaId);
+    if (antenna && antenna.isOn && !antenna.isAuto && !antenna.isTrackingSatellite && !antenna.isCommunicating) {
+        antenna.elevation = parseInt(value);
+        antenna.elevationValueSpan.textContent = `${antenna.elevation}°`;
+        draw();
+    } else if (antenna.isAuto || antenna.isTrackingSatellite || antenna.isCommunicating) {
+        antenna.manualElevationInput.value = antenna.elevation;
+    }
+}
+
+// Toggles antenna automatic mode (random target)
+function toggleAutomaticMode(antennaId) {
+    const antenna = antennas.find(a => a.id === antennaId);
+    if (antenna && antenna.isOn) {
+        antenna.isAuto = !antenna.isAuto;
+        antenna.isTrackingSatellite = false; // Turn off satellite tracking if auto mode is toggled
+        antenna.isCommunicating = false; // Turn off communication
+        if (antenna.trackedSatelliteId) {
+            const sat = satellites.find(s => s.id === antenna.trackedSatelliteId);
+            if (sat) sat.isLocked = false; // Unlock satellite
+        }
+        antenna.trackedSatelliteId = null;
+
+        if (antenna.isAuto) {
+            antenna.autoButton.textContent = 'Manual';
+            antenna.autoButton.classList.remove('auto-mode-off');
+            antenna.autoButton.classList.add('auto-mode-on');
+            antenna.manualAzimuthInput.disabled = true;
+            antenna.manualElevationInput.disabled = true;
+            antenna.trackSatButton.disabled = true;
+            antenna.commButton.disabled = true; // Disable communication button
+            // Set a random target
+            antenna.targetAzimuth = Math.floor(Math.random() * 360);
+            antenna.targetElevation = Math.floor(Math.random() * 91);
+        } else {
+            antenna.autoButton.textContent = 'Automático';
+            antenna.autoButton.classList.remove('auto-mode-on');
+            antenna.autoButton.classList.add('auto-mode-off');
+            antenna.manualAzimuthInput.disabled = false;
+            antenna.manualElevationInput.disabled = false;
+            antenna.trackSatButton.disabled = false;
+            antenna.commButton.disabled = true; // Disable communication button
+        }
+        draw();
+        updateSatelliteTrackingStatus();
+        updateTelemetryDisplay();
+        updateSatelliteSignalDisplays();
+        updateAlarmButtons();
+        updateCommButtons(); // Update communication buttons
+    } else if (!antenna.isOn) {
+        // Antenna must be ON to activate automatic mode.
+    }
+}
+
+// Sets a specific satellite for an antenna to track
+function setSatelliteToTrack(antennaId, satelliteId) {
+    const antenna = antennas.find(a => a.id === antennaId);
+    const satellite = satellites.find(s => s.id === satelliteId);
+
+    if (antenna && satellite && antenna.isOn) {
+        // If already tracking this satellite, turn off tracking
+        if (antenna.isTrackingSatellite && antenna.trackedSatelliteId === satellit
