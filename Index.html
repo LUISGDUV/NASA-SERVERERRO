@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle de Antenas NASA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <h1>Painel de Controle de Antenas Gigantes da NASA</h1>
+        <p id="userIdDisplay" class="user-id-display">ID do Usuário: Carregando...</p>
+
+        <div class="content-wrapper">
+            <div class="canvas-container">
+                <canvas id="antennaCanvas"></canvas>
+            </div>
+
+            <div class="controls-info-container">
+                <div class="section-card">
+                    <h2 class="section-title">Controle de Antenas</h2>
+                    <div id="antennaControls" class="antenna-controls-grid">
+                        <div class="antenna-card" id="antenna1-card">
+                            <h3 class="antenna-name">Antena 1 (Califórnia)</h3>
+                            <p class="antenna-location">Localização: 34.20° N, 116.89° O</p>
+                            <div class="control-group">
+                                <label class="control-label" for="azimuth1">Azimute (°):</label>
+                                <input type="range" id="azimuth1" min="0" max="359" value="0" class="range-input" disabled>
+                                <span id="azimuthValue1" class="value-display">0°</span>
+
+                                <label class="control-label" for="elevation1">Elevação (°):</label>
+                                <input type="range" id="elevation1" min="0" max="90" value="45" class="range-input" disabled>
+                                <span id="elevationValue1" class="value-display">45°</span>
+                            </div>
+                            <div class="button-group">
+                                <button id="toggle1" class="control-button off">Ligar</button>
+                                <button id="auto1" class="control-button auto-mode-off" disabled>Automático</button>
+                            </div>
+                            <button id="trackSatBtn1" class="control-button track-satellite mt-2" disabled>Rastrear Satélite</button>
+                            <button id="commBtn1" class="control-button comm-button mt-2" disabled>Comunicação</button>
+                            <button id="alarmBtn1" class="control-button alarm-button mt-2" disabled>Ativar Alarme</button>
+                        </div>
+
+                        <div class="antenna-card" id="antenna2-card">
+                            <h3 class="antenna-name">Antena 2 (Espanha)</h3>
+                            <p class="antenna-location">Localização: 40.43° N, 4.25° O</p>
+                            <div class="control-group">
+                                <label class="control-label" for="azimuth2">Azimute (°):</label>
+                                <input type="range" id="azimuth2" min="0" max="359" value="120" class="range-input" disabled>
+                                <span id="azimuthValue2" class="value-display">120°</span>
+
+                                <label class="control-label" for="elevation2">Elevação (°):</label>
+                                <input type="range" id="elevation2" min="0" max="90" value="60" class="range-input" disabled>
+                                <span id="elevationValue2" class="value-display">60°</span>
+                            </div>
+                            <div class="button-group">
+                                <button id="toggle2" class="control-button off">Ligar</button>
+                                <button id="auto2" class="control-button auto-mode-off" disabled>Automático</button>
+                            </div>
+                            <button id="trackSatBtn2" class="control-button track-satellite mt-2" disabled>Rastrear Satélite</button>
+                            <button id="commBtn2" class="control-button comm-button mt-2" disabled>Comunicação</button>
+                            <button id="alarmBtn2" class="control-button alarm-button mt-2" disabled>Ativar Alarme</button>
+                        </div>
+
+                        <div class="antenna-card" id="antenna3-card">
+                            <h3 class="antenna-name">Antena 3 (Austrália)</h3>
+                            <p class="antenna-location">Localização: 35.40° S, 148.98° L</p>
+                            <div class="control-group">
+                                <label class="control-label" for="azimuth3">Azimute (°):</label>
+                                <input type="range" id="azimuth3" min="0" max="359" value="240" class="range-input" disabled>
+                                <span id="azimuthValue3" class="value-display">240°</span>
+
+                                <label class="control-label" for="elevation3">Elevação (°):</label>
+                                <input type="range" id="elevation3" min="0" max="90" value="30" class="range-input" disabled>
+                                <span id="elevationValue3" class="value-display">30°</span>
+                            </div>
+                            <div class="button-group">
+                                <button id="toggle3" class="control-button off">Ligar</button>
+                                <button id="auto3" class="control-button auto-mode-off" disabled>Automático</button>
+                            </div>
+                            <button id="trackSatBtn3" class="control-button track-satellite mt-2" disabled>Rastrear Satélite</button>
+                            <button id="commBtn3" class="control-button comm-button mt-2" disabled>Comunicação</button>
+                            <button id="alarmBtn3" class="control-button alarm-button mt-2" disabled>Ativar Alarme</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2 class="section-title">Satélites Rastreados</h2>
+                    <div id="trackedSatellites" class="satellite-list-container">
+                        </div>
+                </div>
+
+                <div class="section-card">
+                    <h2 class="section-title">Sinal dos Satélites</h2>
+                    <div id="satelliteSignalDisplays" class="signal-display-container">
+                        <p class="text-slate-400">Nenhum satélite sendo rastreado para exibir sinal.</p>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2 class="section-title">Dados de Telemetria</h2>
+                    <div id="telemetryDisplay" class="telemetry-display">
+                        <p class="text-slate-400">Nenhum satélite sendo rastreado para exibir telemetria.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="satelliteSelectModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Selecione um Satélite para Rastrear</h3>
+            <ul id="satelliteListForSelection">
+                </ul>
+            <button id="closeModalBtn">Cancelar</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
+
